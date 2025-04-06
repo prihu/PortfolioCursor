@@ -1,83 +1,147 @@
 import React from 'react'
 import Image from 'next/image'
+import { groq } from 'next-sanity'
+import { client } from '@/sanity/lib/client'
+import { urlFor } from '@/sanity/lib/image'
+import { PortableText } from '@portabletext/react'
 import Header from '../components/Header'
 import Experience from '../components/Experience'
 import Skills from '../components/Skills'
 import Contact from '../components/Contact'
 import Education from '../components/Education'
 
-export default function Home() {
+// Define the type for the fetched data (optional but recommended for type safety)
+// You can generate these types more robustly using tools like sanity-codegen
+interface HomePageData {
+  _id: string;
+  heroName?: string;
+  heroRole?: string;
+  heroSummary?: string;
+  heroCtaContactLabel?: string;
+  heroCtaResumeLabel?: string;
+  heroImage?: any; // Use a more specific Sanity image type if generated
+  aboutSectionTitle?: string;
+  aboutContent?: any[]; // Portable Text blocks
+  experienceSectionTitle?: string;
+  experiences?: any[]; // Array of experience objects
+  educationSectionTitle?: string;
+  educationEntries?: any[]; // Array of education objects
+  skillsSectionTitle?: string;
+  skillCategories?: any[]; // Array of skill category objects
+  contactSectionTitle?: string;
+  contactIntroText?: string;
+  contactLinks?: any[]; // Array of contact link objects
+  resumeFile?: { asset?: { url?: string } };
+}
+
+// GROQ query to fetch the single homePage document
+const homePageQuery = groq`*[_type == "homePage"][0]`
+
+// Fetch data function (can be called directly in Server Component)
+async function getHomePageData(): Promise<HomePageData> {
+  // Add a revalidation tag if needed later: { next: { tags: ['homePage'] } }
+  const data = await client.fetch(homePageQuery)
+  return data || {}; // Return empty object if no data found
+}
+
+export default async function Home() {
+  const pageData = await getHomePageData();
+  const resumeUrl = pageData.resumeFile?.asset?.url;
+
   return (
     <>
+      {/* Header might need site title later from siteSettings */}
       <Header />
       <main className="min-h-screen pt-28">
-        {/* Hero Section */}
+        {/* Hero Section - Now uses fetched data */}
         <section className="section-padding flex flex-col md:flex-row items-center justify-between">
           <div className="md:w-1/2 space-y-6">
             <h1 className="heading-1 mb-2">
-              Hi, I'm Priyank Garg
+              {pageData.heroName || "Priyank Garg"} {/* Fallback text */}
             </h1>
             <span className="block text-primary text-2xl sm:text-3xl font-medium">
-              Product Manager
+              {pageData.heroRole || "Product Manager"} {/* Fallback text */}
             </span>
-            <p className="paragraph">
-              Product Manager with over 6 years of experience launching, managing, and building B2C and B2B technology products across domains including Customer Service, Identity Verification, AI Decisioning, Data Platforms, Buy Now Pay Later (BNPL), and Partner & Sales Enablement.
-            </p>
-            <p className="font-semibold text-gray-700 dark:text-gray-300">
-              Proven ability to drive significant growth, including 1000x transaction volume growth over 3 years and achieving 30% more transaction volumes through AI-assisted underwriting.
-            </p>
+            {pageData.heroSummary && (
+              <p className="paragraph">
+                {pageData.heroSummary}
+              </p>
+            )}
             <div className="flex gap-4">
               <a
                 href="#contact"
                 className="inline-flex items-center px-6 py-3 rounded-lg bg-primary text-white hover:bg-blue-600 transition-colors"
               >
-                Contact Me
+                {pageData.heroCtaContactLabel || 'Contact Me'}
               </a>
-              <a
-                href="/Priyank_Garg_Resume_Sep24.pdf"
-                target="_blank"
-                className="inline-flex items-center px-6 py-3 rounded-lg border-2 border-primary text-primary hover:bg-primary hover:text-white transition-colors"
-              >
-                View Resume
-              </a>
+              {resumeUrl && (
+                <a
+                  href={resumeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer" // Good practice for target="_blank"
+                  className="inline-flex items-center px-6 py-3 rounded-lg border-2 border-primary text-primary hover:bg-primary hover:text-white transition-colors"
+                >
+                  {pageData.heroCtaResumeLabel || 'View Resume'}
+                </a>
+              )}
             </div>
           </div>
           <div className="md:w-1/2 mt-8 md:mt-0 flex justify-center">
             <div className="relative w-64 h-64 rounded-full overflow-hidden">
-              <Image
-                src="/profile.jpg"
-                alt="Priyank Garg"
-                fill
-                className="object-cover"
-                priority
-              />
+              {pageData.heroImage ? (
+                <Image
+                  src={urlFor(pageData.heroImage).url()}
+                  alt={pageData.heroName || 'Profile Picture'}
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-500">No Image</div>
+              )}
             </div>
           </div>
         </section>
 
-        {/* About Section */}
+        {/* About Section - Now uses fetched data */}
         <section id="about" className="section-padding bg-gray-50 dark:bg-gray-900">
           <div className="max-w-4xl mx-auto">
-            <h2 className="heading-2 text-center mb-8">About Me</h2>
-            <div className="space-y-6">
-              <p className="paragraph">
-                With over six years dedicated to product management, I specialize in developing and scaling B2C and B2B technology products. My experience spans diverse domains such as Customer Service platforms, Identity Verification systems, AI-driven Decisioning engines, Data Platforms, Buy Now Pay Later (BNPL) solutions, and Partner & Sales Enablement tools.
-              </p>
-              <p className="paragraph">
-                Throughout my career at organizations like IndusInd Bank, CreditVidya (acquired by CRED), and NeoGrowth Credit, I've focused on delivering impactful results. Key achievements include driving a 1000x growth in transaction volume over three years at CreditVidya and boosting transaction volumes by 30% using AI-assisted underwriting techniques.
-              </p>
-              <p className="paragraph">
-                I have a proven track record in defining product strategy, leading cross-functional teams, and enhancing customer experience through innovative features like configurable helpdesk widgets, bilingual IVR systems, and AI-enabled document processing. I thrive on translating user needs and market opportunities into successful product launches and iterations.
-              </p>
+            <h2 className="heading-2 text-center mb-8">
+              {pageData.aboutSectionTitle || 'About Me'}
+            </h2>
+            <div className="prose dark:prose-invert max-w-none space-y-6">
+              {pageData.aboutContent ? (
+                <PortableText value={pageData.aboutContent} />
+              ) : (
+                <p className="paragraph">About content coming soon...</p>
+              )}
             </div>
           </div>
         </section>
 
-        <Experience />
-        <Education />
-        <Skills />
-        <Contact />
+        {/* Pass fetched data to child components */}
+        <Experience
+          title={pageData.experienceSectionTitle}
+          experiences={pageData.experiences}
+        />
+        <Education
+          title={pageData.educationSectionTitle}
+          educationEntries={pageData.educationEntries}
+        />
+        <Skills
+          title={pageData.skillsSectionTitle}
+          skillCategories={pageData.skillCategories}
+        />
+        <Contact
+          title={pageData.contactSectionTitle}
+          introText={pageData.contactIntroText}
+          contactLinks={pageData.contactLinks}
+          resumeUrl={resumeUrl}
+        />
       </main>
     </>
   )
 }
+
+// Add revalidation if desired (e.g., revalidate every hour)
+// export const revalidate = 3600 
