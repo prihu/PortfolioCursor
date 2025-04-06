@@ -7,6 +7,7 @@ const Header = () => {
     { label: 'Experience', href: '#experience' },
     { label: 'Education', href: '#education' },
     { label: 'Skills', href: '#skills' },
+    { label: 'Blog', href: '/blog' },
     { label: 'Contact', href: '#contact' },
   ]
 
