@@ -14,10 +14,12 @@ export default function Home() {
         {/* Hero Section */}
         <section className="section-padding flex flex-col md:flex-row items-center justify-between">
           <div className="md:w-1/2 space-y-6">
-            <h1 className="heading-1">
+            <h1 className="heading-1 mb-2">
               Hi, I'm Priyank Garg
-              <span className="block text-primary">Product Manager</span>
             </h1>
+            <span className="block text-primary text-2xl sm:text-3xl font-medium">
+              Product Manager
+            </span>
             <p className="paragraph">
               Product Manager with over 6 years of experience launching, managing, and building B2C and B2B technology products across domains including Customer Service, Identity Verification, AI Decisioning, Data Platforms, Buy Now Pay Later (BNPL), and Partner & Sales Enablement.
             </p>
