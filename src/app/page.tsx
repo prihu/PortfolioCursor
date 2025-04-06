@@ -4,6 +4,7 @@ import Header from '../components/Header'
 import Experience from '../components/Experience'
 import Skills from '../components/Skills'
 import Contact from '../components/Contact'
+import Education from '../components/Education'
 
 export default function Home() {
   return (
@@ -73,6 +74,7 @@ export default function Home() {
         </section>
 
         <Experience />
+        <Education />
         <Skills />
         <Contact />
       </main>
