@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <>
       <Header />
-      <main className="min-h-screen pt-20">
+      <main className="min-h-screen pt-28">
         {/* Hero Section */}
         <section className="section-padding flex flex-col md:flex-row items-center justify-between">
           <div className="md:w-1/2 space-y-6">
