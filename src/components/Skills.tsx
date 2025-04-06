@@ -5,40 +5,44 @@ const Skills = () => {
     {
       title: 'Product Management',
       skills: [
-        'Product Strategy',
-        'Product Development',
-        'User Research',
-        'Market Analysis',
-        'Product Analytics',
-        'A/B Testing',
-        'Roadmap Planning',
-        'Stakeholder Management',
+        'Product Strategy & Roadmapping',
+        'B2C & B2B Product Management',
+        'Customer Experience (CX)',
+        'User Research & Feedback Loops',
+        'A/B Testing & Optimization',
+        'AI Decisioning & Underwriting',
+        'Data Platforms & Analytics',
+        'Buy Now Pay Later (BNPL)',
+        'Partner & Sales Enablement',
+        'SaaS Product Development',
+        'Agile Methodologies',
       ],
     },
     {
-      title: 'Technical Skills',
+      title: 'Tools & Technical',
       skills: [
-        'SQL',
-        'Python',
-        'Data Analysis',
-        'API Design',
-        'Agile/Scrum',
+        // Product & Data Tools from Resume
         'JIRA',
-        'Git',
-        'AWS',
+        'Posthog',
+        'Amplitude',
+        'Figma',
+        'Notion',
+        'Whimsical',
+        'Confluence',
+        'Excel',
+        // Technical Skills from Resume
+        'SQL',
       ],
     },
     {
-      title: 'Leadership',
+      title: 'Key Domains',
       skills: [
-        'Team Management',
-        'Cross-functional Leadership',
-        'Project Management',
-        'Strategic Planning',
-        'Communication',
-        'Problem Solving',
-        'Decision Making',
-        'Mentoring',
+        'Customer Service Technology',
+        'Identity Verification',
+        'FinTech',
+        'Consumer Banking',
+        'Credit & Lending',
+        'Analytics Platforms',
       ],
     },
   ]
@@ -46,7 +50,7 @@ const Skills = () => {
   return (
     <section id="skills" className="section-padding">
       <h2 className="heading-2 text-center mb-12">Skills & Expertise</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {skillCategories.map((category, index) => (
           <div
             key={index}
