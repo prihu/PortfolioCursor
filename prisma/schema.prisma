@@ -25,6 +25,7 @@ model Page {
   heroComponents HeroComponent[]
   experienceComponents ExperienceComponent[] // Added relation
   educationComponents EducationComponent[] // Added relation
+  builderData BuilderData? // Added relation to builder data (one-to-one)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -154,6 +155,17 @@ model Skill {
   @@index([skillCategoryId])
   // Unique constraint within a category
   @@unique([skillCategoryId, name], name: "skillCategoryId_name_unique")
+}
+
+// Builder data model for storing visual builder page data
+model BuilderData {
+  id        String   @id @default(cuid())
+  pageId    String   @unique
+  page      Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  elements  Json     // Stores the canvas elements
+  theme     Json     // Stores the theme configuration
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // --- REVIEW BLOCK START ---
