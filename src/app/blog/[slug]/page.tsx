@@ -21,11 +21,6 @@ interface Post {
   };
 }
 
-// Type for page params
-interface PageProps {
-  params: { slug: string };
-}
-
 // GROQ query to fetch a single post by its slug
 const postQuery = groq`
   *[_type == "post" && slug.current == $slug][0] {
@@ -54,7 +49,7 @@ async function getPost(slug: string): Promise<Post | null> {
 //   return slugs.map((slug: string) => ({ slug }));
 // }
 
-export default async function BlogPostPage({ params }: PageProps) {
+export default async function BlogPostPage({ params }: { params: { slug: string } }) {
   const post = await getPost(params.slug);
 
   if (!post) {

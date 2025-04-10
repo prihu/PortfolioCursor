@@ -1,0 +1,175 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite" // Using SQLite for local development
+  url      = "file:./dev.db" // Correctly set the URL directly
+}
+
+// Model for a Page, which contains multiple components
+model Page {
+  id        String  @id @default(cuid()) // Unique ID
+  slug      String  @unique // URL slug for the page (e.g., "home", "about")
+  title     String  // Title of the page (for admin UI)
+  isPublished Boolean @default(false) // Whether the page is publicly visible
+  aboutContent String? // Removed @db.Text for SQLite compatibility
+
+  // Relation to components (one Page has many HeroComponents)
+  heroComponents HeroComponent[]
+  experienceComponents ExperienceComponent[] // Added relation
+  educationComponents EducationComponent[] // Added relation
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Model for the Hero Component data
+model HeroComponent {
+  id            String  @id @default(cuid())
+  // pageId        String  // Replaced by relation field below
+  order         Int     // Order of this component on the page
+
+  // Hero specific fields
+  headline      String?
+  subheadline   String?
+  summary       String?
+  ctaLabel      String? @default("Contact Me")
+  ctaLink       String? @default("#contact")
+  resumeLinkLabel String? @default("View Resume")
+  imageUrl      String? // Added field for image URL
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relation back to the Page
+  page   Page   @relation(fields: [pageId], references: [id], onDelete: Cascade) // Define the relation
+  pageId String // Foreign key field
+
+  // Index on pageId as recommended
+  @@index([pageId])
+  // Add unique constraint for pageId and order
+  @@unique([pageId, order])
+}
+
+// Model for User accounts
+model User {
+  id            String    @id @default(cuid()) // Unique user ID
+  name          String?                             // Optional user name
+  email         String    @unique                     // User email, must be unique
+  emailVerified DateTime?                           // Timestamp if email is verified (useful for email providers)
+  password      String                              // Stores the hashed password
+  image         String?                             // Optional profile image URL
+  role          String    @default("USER")         // Add roles (e.g., USER, ADMIN)
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Optional: Add relations to accounts/sessions if using Prisma adapter later
+  // accounts Account[]
+  // sessions Session[]
+}
+
+// Model for the Experience Component data
+model ExperienceComponent {
+  id          String    @id @default(cuid()) // Unique ID
+  pageId      String                      // Foreign key to Page
+  order       Int                         // Order on the page
+
+  // Experience specific fields
+  jobTitle    String
+  company     String
+  location    String?
+  startDate   DateTime                    // Or String if more flexible dates needed
+  endDate     DateTime?                   // Null if current job
+  description String?   // Removed @db.Text
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relation back to the Page
+  page        Page      @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([pageId])
+  // Add unique constraint for upsert during seed
+  @@unique([pageId, jobTitle, company], name: "pageId_jobTitle_company_unique")
+}
+
+// Model for the Education Component data
+model EducationComponent {
+  id          String    @id @default(cuid()) // Unique ID
+  pageId      String                      // Foreign key to Page
+  order       Int                         // Order on the page
+
+  // Education specific fields
+  institution String
+  degree      String
+  startDate   DateTime                    // Consider if String is better for flexibility (e.g., "2020")
+  endDate     DateTime?                   // Null if currently studying or single date
+  description String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relation back to the Page
+  page        Page      @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([pageId])
+  // Unique constraint (optional, adjust based on requirements)
+  @@unique([pageId, institution, degree], name: "pageId_institution_degree_unique")
+}
+
+// Model for Skill Categories (Global)
+model SkillCategory {
+  id    String  @id @default(cuid()) // Unique ID
+  name  String  @unique // Category name (e.g., "Frontend", "Backend", "Tools")
+  order Int             // Order for display
+
+  // Relation to Skills
+  skills Skill[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Model for individual Skills
+model Skill {
+  id              String  @id @default(cuid()) // Unique ID
+  name            String                      // Skill name (e.g., "React", "Node.js", "Figma")
+  order           Int                         // Order within the category
+
+  // Relation back to SkillCategory
+  skillCategory   SkillCategory @relation(fields: [skillCategoryId], references: [id], onDelete: Cascade)
+  skillCategoryId String                      // Foreign key
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([skillCategoryId])
+  // Unique constraint within a category
+  @@unique([skillCategoryId, name], name: "skillCategoryId_name_unique")
+}
+
+// --- REVIEW BLOCK START ---
+// Requesting review for the new Page model and the relationship with HeroComponent.
+// Focus areas: Page model structure, Page-HeroComponent relation (one-to-many), foreign key (pageId), onDelete behavior, pageId index.
+// Reviewers: SDE-III (Backend), Principal Architect, Database SME, Security SME
+// --- REVIEW BLOCK END ---
+
+// --- REVIEW BLOCK START ---
+// Requesting review for the new User model.
+// Focus areas: Model structure, field types (especially password), unique constraints, potential future fields (role, relations for adapter).
+// Reviewers: SDE-III (Backend), Principal Architect, Database SME, Security SME
+// --- REVIEW BLOCK END ---
+
+// --- REVIEW BLOCK START ---
+// Requesting review for the new ExperienceComponent model and updated Page relation.
+// Focus areas: Model structure (ExperienceComponent), field types (esp. dates, description), relation to Page, onDelete behavior, index.
+// Reviewers: SDE-III (Backend), Principal Architect, Database SME, Security SME
+// --- REVIEW BLOCK END ---
